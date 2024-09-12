@@ -9,18 +9,28 @@ const Statistics = ({ good, neutral, bad }) => {
     <div>
       <h1>statistics</h1>
       {all > 0 ? (
-        <>
-          <p>Good: {good}</p>
-          <p>Neutral: {neutral}</p>
-          <p>Bad: {bad}</p>
-          <p>All: {all}</p>
-          <p>Average: {average}</p>
-          <p>Positive: {positive}%</p>
-        </>
+        <table>
+          <tbody>
+          <StatisticLine text="Good" value={good}></StatisticLine>
+          <StatisticLine text="Neutral" value={neutral}></StatisticLine>
+          <StatisticLine text="Bad" value={bad}></StatisticLine>
+          <StatisticLine text="All" value={all}></StatisticLine>
+          <StatisticLine text="Average" value={average}></StatisticLine>
+          <StatisticLine text="Positive" value={positive+"%"}></StatisticLine>
+          </tbody>
+        </table>
       ) : (
         <p>No feedback given</p>
       )}
     </div>
+  );
+};
+
+const StatisticLine = (props) => {
+  return (
+    <tr>
+      <td>{props.text}: </td><td>{props.value}</td>
+    </tr>
   );
 };
 
