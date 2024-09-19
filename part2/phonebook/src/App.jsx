@@ -9,18 +9,19 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchText, setSearchText] = useState("");
-  const [persons, setPersons] = useState([])
+  const [persons, setPersons] = useState([]);
   const [filteredPersons, setFilteredPersons] = useState([]);
-  
+  const [NotificationMessage, setNotificationMessage] = useState(null);
+  const [ErrorMessage, setErrorMessage] = useState(null);
+
   useEffect(() => {
-    console.log('effect')
-    
-    personsService.getAll()
-      .then(initialPersons => {
-        setPersons(initialPersons)
-        setFilteredPersons(initialPersons)
-      })
-  }, [])
+    console.log("effect");
+
+    personsService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
+      setFilteredPersons(initialPersons);
+    });
+  }, []);
 
   const handleAdd = (event) => {
     event.preventDefault();
@@ -28,19 +29,42 @@ const App = () => {
     const existingPerson = persons.find((person) => person.name === newName);
 
     if (existingPerson) {
-      if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
+      if (
+        window.confirm(
+          `${newName} is already added to the phonebook, replace the old number with a new one?`
+        )
+      ) {
         personsService
           .update(existingPerson.id, newPerson)
           .then((returnedPerson) => {
-            setPersons(persons.map((person) => (person.id !== existingPerson.id ? person : returnedPerson)));
-            setFilteredPersons(persons.map((person) => (person.id !== existingPerson.id ? person : returnedPerson)));
+            setPersons(
+              persons.map((person) =>
+                person.id !== existingPerson.id ? person : returnedPerson
+              )
+            );
+            setFilteredPersons(
+              persons.map((person) =>
+                person.id !== existingPerson.id ? person : returnedPerson
+              )
+            );
             setNewName("");
             setNewNumber("");
           })
           .catch((error) => {
-            alert(`The contact '${existingPerson.name}' was already deleted from the server.`);
-            setPersons(persons.filter((person) => person.id !== existingPerson.id));
-            setFilteredPersons(filteredPersons.filter((person) => person.id !== existingPerson.id));
+            setErrorMessage(
+              `The contact '${existingPerson.name}' was already deleted from the server.`
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000);
+            setPersons(
+              persons.filter((person) => person.id !== existingPerson.id)
+            );
+            setFilteredPersons(
+              filteredPersons.filter(
+                (person) => person.id !== existingPerson.id
+              )
+            );
           });
       }
     } else {
@@ -49,11 +73,15 @@ const App = () => {
         setFilteredPersons(persons.concat(returnedPerson));
         setNewName("");
         setNewNumber("");
+        setNotificationMessage(`Added ${returnedPerson.name}`)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000);
       });
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id, name) => {
     if (window.confirm("Please, confirm this action.")) {
       personsService
         .destroy(id)
@@ -67,7 +95,12 @@ const App = () => {
           );
         })
         .catch((error) => {
-          alert(`The person was already deleted from server.`);
+          setErrorMessage(
+            `Information of '${name}' has already been removed from the server.`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000);
         });
     }
   };
@@ -91,9 +124,19 @@ const App = () => {
     );
   };
 
+  const Notification = ({ message, errorMessage }) => {
+    if (message === null && errorMessage === null) {
+      return null;
+    }
+    return (
+      message ? <div className="success">{message}</div> : <div className="error">{ErrorMessage}</div>
+    )
+  };
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={NotificationMessage} errorMessage={ErrorMessage}/>
       <Filter handleInputSearch={handleInputSearch} searchText={searchText} />
       <h3>Add a new</h3>
       <PersonForm
