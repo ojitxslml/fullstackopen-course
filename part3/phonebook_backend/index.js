@@ -1,6 +1,16 @@
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 app.use(express.json());
+app.use(morgan("tiny"));
+const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+  }
+  app.use(requestLogger)
 let persons = [
   {
     id: "1",
@@ -23,6 +33,7 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
+
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
@@ -88,7 +99,14 @@ app.post("/api/persons", (request, response) => {
   response.status(201).json(person);
 });
 
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+  }
+  
+  app.use(unknownEndpoint)
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
