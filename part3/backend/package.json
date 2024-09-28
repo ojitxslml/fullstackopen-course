@@ -4,11 +4,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",
+    "devx": "nodemon --inspect index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../notes && npm run build && @powershell Copy-Item dist -Recurse ../backend",
     "deploy": "fly deploy",
-    "deploy:full": "npm run build:ui && npm run deploy",    
+    "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "fly logs"
   },
   "author": "",
@@ -16,7 +16,8 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "mongoose": "^8.7.0"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.8",
