@@ -27,26 +27,28 @@ app.get("/api/person", (request, response) => {
   });
 });
 
-app.get("/api/person/:id", (request, response) => {
-  Person.findById(request.params.id).then((person) => {
-    response.json(person);
-  });
+app.get("/api/person/:id", (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((person) => {
+      response.json(person);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/info", (request, response) => {
   Person.countDocuments({})
-    .then(quantity => {
+    .then((quantity) => {
       const date = new Date();
       response.send(
         `<p>Phonebook has info of ${quantity} people</p><p>${date.toString()}</p>`
       );
     })
-    .catch(error => {
+    .catch((error) => {
       response.status(500).json({ error: "Error retrieving data" });
     });
 });
 
-app.post("/api/person", (request, response) => {
+app.post("/api/person", (request, response, next) => {
   const body = request.body;
 
   if (!body.name && !body.number) {
@@ -72,30 +74,23 @@ app.post("/api/person", (request, response) => {
       .then((savedPerson) => {
         response.status(201).json(savedPerson);
       })
-      .catch((error) => {
-        response.status(500).json({ error: "Error saving person" });
-      });
+      .catch((error) => next(error));
   });
 });
 
-
-app.delete("/api/person/:id", (request, response) => {
+app.delete("/api/person/:id", (request, response, next) => {
   const id = request.params.id;
 
   Person.findByIdAndDelete(id)
-    .then(result => {
+    .then((result) => {
       if (result) {
         response.status(204).end(); // 204 No Content, la eliminación fue exitosa
       } else {
         response.status(404).json({ error: "person not found" });
       }
     })
-    .catch(error => {
-      console.error(error);
-      response.status(400).json({ error: "malformatted id" });
-    });
+    .catch((error) => next(error));
 });
-
 
 app.put("/api/person/:id", (request, response) => {
   const { name, number } = request.body;
@@ -106,26 +101,36 @@ app.put("/api/person/:id", (request, response) => {
 
   const updatedPerson = { name, number };
 
-  Person.findByIdAndUpdate(request.params.id, updatedPerson, { new: true, runValidators: true })
-    .then(updatedPerson => {
+  Person.findByIdAndUpdate(request.params.id, updatedPerson, { new: true })
+    .then((updatedPerson) => {
       if (updatedPerson) {
         response.json(updatedPerson);
       } else {
         response.status(404).json({ error: "person not found" });
       }
     })
-    .catch(error => {
-      console.error(error);
-      response.status(400).json({ error: "malformatted id" });
-    });
+    .catch((error) => next(error));
 });
-
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
 
+// handler of requests with unknown endpoint
 app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
