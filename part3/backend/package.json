@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "devx": "nodemon --inspect index.js",
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../notes && npm run build && @powershell Copy-Item dist -Recurse ../backend",
     "deploy": "fly deploy",
@@ -21,7 +22,11 @@
     "mongoose": "^8.7.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.11.1",
     "@flydotio/dockerfile": "^0.5.8",
+    "@stylistic/eslint-plugin-js": "^2.8.0",
+    "eslint": "^9.11.1",
+    "globals": "^15.10.0",
     "nodemon": "^3.1.7"
   }
 }

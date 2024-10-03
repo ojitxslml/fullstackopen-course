@@ -1,17 +1,17 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
-const app = express();
-app.use(express.json());
-app.use(cors());
-app.use(express.static("dist"));
-const Note = require("./models/note");
+const express = require('express')
+const cors = require('cors')
+require('dotenv').config()
+const app = express()
+app.use(express.json())
+app.use(cors())
+app.use(express.static('dist'))
+const Note = require('./models/note')
 
-app.get("/api/notes", (request, response) => {
+app.get('/api/notes', (request, response) => {
   Note.find({}).then((notes) => {
-    response.json(notes);
-  });
-});
+    response.json(notes)
+  })
+})
 
 app.get('/api/notes/:id', (request, response, next) => {
   Note.findById(request.params.id)
@@ -42,7 +42,7 @@ app.post('/api/notes', (request, response, next) => {
 
 app.delete('/api/notes/:id', (request, response, next) => {
   Note.findByIdAndDelete(request.params.id)
-    .then(result => {
+    .then(response => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -53,11 +53,11 @@ app.put('/api/notes/:id', (request, response, next) => {
   const { content, important } = request.body
 
   Note.findByIdAndUpdate(
-    request.params.id, 
+    request.params.id,
 
     { content, important },
     { new: true, runValidators: true, context: 'query' }
-  ) 
+  )
     .then(updatedNote => {
       response.json(updatedNote)
     })
@@ -87,7 +87,7 @@ const errorHandler = (error, request, response, next) => {
 // this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`Server running on port ${PORT}`)
+})

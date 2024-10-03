@@ -5,13 +5,18 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "devc": "nodemon index.js"
+    "devc": "nodemon index.js",
+     "lint": "eslint . --fix"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@eslint/js": "^9.11.1",
     "@flydotio/dockerfile": "^0.5.8",
+    "@stylistic/eslint-plugin-js": "^2.8.0",
+    "eslint": "^9.11.1",
+    "globals": "^15.10.0",
     "nodemon": "^3.1.7"
   },
   "dependencies": {
