@@ -19,14 +19,6 @@ const noteSchema = new mongoose.Schema({
 
 const Note = mongoose.model('Note', noteSchema)
 
-//to create a note into database
-/* note.save().then(result => {
-  console.log('note saved!')
-  mongoose.connection.close()
-}) */
-
-//to fetch a note from database {} means all the notes in the collection, to filter by important is ({ important: true })
-
 Note.find({}).then((result) => {
   result.forEach((note) => {
     console.log(note)
