@@ -6,7 +6,7 @@
     "start": "node index.js",
     "devx": "nodemon --inspect index.js",
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
     "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../notes && npm run build && @powershell Copy-Item dist -Recurse ../backend",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
