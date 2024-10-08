@@ -2,14 +2,14 @@ const { test, describe } = require('node:test')
 const assert = require('node:assert')
 
 const average = array => {
-    const reducer = (sum, item) => {
-      return sum + item
-    }
-  
-    return array.length === 0
-      ? 0
-      : array.reduce(reducer, 0) / array.length
+  const reducer = (sum, item) => {
+    return sum + item
   }
+
+  return array.length === 0
+    ? 0
+    : array.reduce(reducer, 0) / array.length
+}
 
 describe('average', () => {
   test('of one value is the value itself', () => {
