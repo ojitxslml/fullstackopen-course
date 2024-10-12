@@ -1,0 +1,8 @@
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY3MDc0ODA1NzZiYWNlYTRmNWQ4ZjkxYiIsImlhdCI6MTcyODU5ODUzNX0.mg9y9Mbu1r1gAm0P_JFJrMlwpxXTX_fst2-_OX-T7tg
+
+{
+    "content":"Token based auth 2",
+    "important":false
+}
