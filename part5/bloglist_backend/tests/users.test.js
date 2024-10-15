@@ -16,7 +16,7 @@ describe("User creation", () => {
     const newUser = {
       username: "testuser",
       name: "Test User",
-      password: "securepassword",
+      password: "password",
     };
 
     const response = await supertest(app)
@@ -31,7 +31,7 @@ describe("User creation", () => {
     const newUser = {
       username: "us",
       name: "Short User",
-      password: "securepassword",
+      password: "password",
     };
 
     const response = await supertest(app)
@@ -61,7 +61,7 @@ describe("User creation", () => {
     const newUser = {
       username: "existinguser",
       name: "Existing User",
-      password: "securepassword",
+      password: "password",
     };
 
     await supertest(app)
