@@ -3,8 +3,8 @@ module.exports = {
   env: {
     browser: true,
     es2020: true,
+    "vitest-globals/env": true,
   },
-  "vitest-globals/env": true,
   extends: [
     "eslint:recommended",
     "plugin:react/recommended",
