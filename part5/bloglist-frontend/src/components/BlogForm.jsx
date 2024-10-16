@@ -1,40 +1,40 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 const BlogForm = ({ createBlog }) => {
-  const [newTitle, setNewTitle] = useState("");
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newUrl, setNewUrl] = useState("");
+  const [newTitle, setNewTitle] = useState('')
+  const [newAuthor, setNewAuthor] = useState('')
+  const [newUrl, setNewUrl] = useState('')
 
   const handleTitleChange = (event) => {
-    setNewTitle(event.target.value);
-  };
+    setNewTitle(event.target.value)
+  }
 
   const handleAuthorChange = (event) => {
-    setNewAuthor(event.target.value);
-  };
+    setNewAuthor(event.target.value)
+  }
 
   const handleUrlChange = (event) => {
-    setNewUrl(event.target.value);
-  };
+    setNewUrl(event.target.value)
+  }
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    
+    event.preventDefault()
+
     createBlog({
       title: newTitle,
       author: newAuthor,
       url: newUrl,
-    });
+    })
 
-    setNewTitle("");
-    setNewAuthor("");
-    setNewUrl("");
-  };
+    setNewTitle('')
+    setNewAuthor('')
+    setNewUrl('')
+  }
 
   return (
     <form onSubmit={handleSubmit}>
       <p>
-        Title:{" "}
+        Title:{' '}
         <input
           value={newTitle}
           onChange={handleTitleChange}
@@ -43,7 +43,7 @@ const BlogForm = ({ createBlog }) => {
       </p>
 
       <p>
-        Author:{" "}
+        Author:{' '}
         <input
           value={newAuthor}
           onChange={handleAuthorChange}
@@ -52,13 +52,13 @@ const BlogForm = ({ createBlog }) => {
       </p>
 
       <p>
-        URL:{" "}
+        URL:{' '}
         <input value={newUrl} onChange={handleUrlChange} placeholder="Url" />
       </p>
 
       <button type="submit">save</button>
     </form>
-  );
-};
+  )
+}
 
-export default BlogForm;
+export default BlogForm
