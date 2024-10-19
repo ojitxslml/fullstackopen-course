@@ -36,28 +36,28 @@ describe('<Togglable />', () => {
 })
 
 test('renders content', () => {
-    const note = {
-      content: 'Does not work anymore :(',
-      important: true
-    }
-  
-    render(<Note note={note} />)
-  
-    const element = screen.getByText(
-        'Does not work anymore :(', { exact: false }
-      )
-  
-    expect(element).toBeDefined()
-  })
+  const note = {
+    content: 'Does not work anymore :(',
+    important: true
+  }
 
-  test('does not render this', () => {
-    const note = {
-      content: 'This is a reminder',
-      important: true
-    }
-  
-    render(<Note note={note} />)
-  
-    const element = screen.queryByText('do not want this thing to be rendered')
-    expect(element).toBeNull()
-  })
+  render(<Note note={note} />)
+
+  const element = screen.getByText(
+    'Does not work anymore :(', { exact: false }
+  )
+
+  expect(element).toBeDefined()
+})
+
+test('does not render this', () => {
+  const note = {
+    content: 'This is a reminder',
+    important: true
+  }
+
+  render(<Note note={note} />)
+
+  const element = screen.queryByText('do not want this thing to be rendered')
+  expect(element).toBeNull()
+})
