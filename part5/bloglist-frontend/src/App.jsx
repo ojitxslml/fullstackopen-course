@@ -67,7 +67,8 @@ const App = () => {
       setTimeout(() => {
         setNotificationMessage(null)
         setNotificationType(null)
-      }, 5000)
+      }, 1000)
+      window.location.reload()
     } catch (error) {
       setNotificationMessage('Error adding blog')
       setNotificationType('error')

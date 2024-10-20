@@ -15,4 +15,16 @@ const createBlog = async (page, { title, author, url }) => {
   await page.getByRole("button", { name: "save" }).click();
 };
 
-export { loginWith, createBlog };
+const logout = async (page) => {
+    await page.getByRole("button", { name: "logout" }).click();
+  };
+  
+  const loginAsDifferentUser = async (page) => {
+    const differentUsername = "differentUser"; 
+    const differentPassword = "differentPassword"; 
+    
+    await loginWith(page, differentUsername, differentPassword);
+  };
+
+
+  export { loginWith, createBlog, logout, loginAsDifferentUser };
