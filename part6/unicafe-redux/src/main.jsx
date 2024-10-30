@@ -24,14 +24,11 @@ const feedbackReducer = (state = initialState, action) => {
   }
 };
 
-// Create Redux store
 const store = createStore(feedbackReducer);
 
-// Inicializa algunas estadísticas
 store.dispatch({ type: 'GOOD' });
 store.dispatch({ type: 'OK' });
 
-// Componente App
 const App = () => {
   const feedback = store.getState();
 
@@ -51,15 +48,12 @@ const App = () => {
   );
 };
 
-// Render
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const renderApp = () => {
   root.render(<App />);
 };
 
-// Subscribe to store updates
 store.subscribe(renderApp);
 
-// Initial render
 renderApp();

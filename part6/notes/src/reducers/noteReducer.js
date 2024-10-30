@@ -19,15 +19,10 @@ const generateId = () =>
 
 const noteSlice = createSlice({
   name: 'notes',
-  initialState,
+  initialState: [],
   reducers: {
     createNote(state, action) {
-      const content = action.payload
-      state.push({
-        content,
-        important: false,
-        id: generateId(),
-      })
+      state.push(action.payload)
     },
     toggleImportanceOf(state, action) {
       const id = action.payload
@@ -42,9 +37,15 @@ const noteSlice = createSlice({
       return state.map(note =>
         note.id !== id ? note : changedNote 
       )     
+    },
+    appendNote(state, action) {
+      state.push(action.payload)
+    },
+    setNotes(state, action) {
+      return action.payload
     }
   },
 })
 
-export const { createNote, toggleImportanceOf } = noteSlice.actions
+export const { createNote, toggleImportanceOf, appendNote, setNotes } = noteSlice.actions
 export default noteSlice.reducer
