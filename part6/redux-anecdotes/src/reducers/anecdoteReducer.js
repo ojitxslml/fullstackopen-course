@@ -1,3 +1,4 @@
+import { createSlice } from '@reduxjs/toolkit';
 import { setNotification, clearNotification } from './notificationReducer';
 
 const anecdotesAtStart = [
@@ -11,68 +12,55 @@ const anecdotesAtStart = [
 
 const getId = () => (100000 * Math.random()).toFixed(0);
 
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0
-  };
-};
+const asObject = (anecdote) => ({
+  content: anecdote,
+  id: getId(),
+  votes: 0
+});
 
 const initialState = anecdotesAtStart.map(asObject);
 
-const VOTE = 'VOTE';
-const NEW_ANECDOTE = 'NEW_ANECDOTE';
+const anecdoteSlice = createSlice({
+  name: 'anecdotes',
+  initialState,
+  reducers: {
+    voteAnecdote(state, action) {
+      const id = action.payload;
+      const anecdoteToVote = state.find(anecdote => anecdote.id === id);
+      if (anecdoteToVote) {
+        anecdoteToVote.votes += 1;
+      }
+      return state.sort((a, b) => b.votes - a.votes);
+    },
+    addAnecdote(state, action) {
+      state.push(action.payload);
+    },
+  },
+});
 
-export const voteAnecdote = (id) => {
-  return async (dispatch) => {
-    dispatch({
-      type: VOTE,
-      payload: { id },
-    });
-    dispatch(setNotification(`You voted for anecdote ${id}`));
+export const { voteAnecdote, addAnecdote } = anecdoteSlice.actions;
 
-    setTimeout(() => {
-      dispatch(clearNotification());
-    }, 5000);
+export const voteAnecdoteAsync = (id) => (dispatch) => {
+  dispatch(voteAnecdote(id));
+  dispatch(setNotification(`You voted for anecdote ${id}`));
+
+  setTimeout(() => {
+    dispatch(clearNotification());
+  }, 5000);
+};
+
+export const createAnecdoteAsync = (content) => (dispatch) => {
+  const anecdote = {
+    content,
+    id: getId(),
+    votes: 0,
   };
+  dispatch(addAnecdote(anecdote));
+  dispatch(setNotification(`You created a new anecdote: ${content}`));
+
+  setTimeout(() => {
+    dispatch(clearNotification());
+  }, 5000);
 };
 
-export const createAnecdote = (content) => {
-  return async (dispatch) => {
-    const anecdote = {
-      content,
-      id: getId(),
-      votes: 0,
-    };
-    
-    dispatch({
-      type: NEW_ANECDOTE,
-      payload: anecdote,
-    });
-    dispatch(setNotification(`You created a new anecdote: ${content}`));
-
-    setTimeout(() => {
-      dispatch(clearNotification());
-    }, 5000);
-  };
-};
-
-const anecdoteReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case VOTE:
-      return state
-        .map(anecdote =>
-          anecdote.id === action.payload.id
-            ? { ...anecdote, votes: anecdote.votes + 1 }
-            : anecdote
-        )
-        .sort((a, b) => b.votes - a.votes);
-    case NEW_ANECDOTE:
-      return [...state, action.payload];
-    default:
-      return state;
-  }
-};
-
-export default anecdoteReducer;
+export default anecdoteSlice.reducer;
