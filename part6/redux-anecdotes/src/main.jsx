@@ -3,7 +3,7 @@ import { Provider } from 'react-redux'
 import App from './App'
 import store from "./reducers/store"
 import anecdoteService from './services/anecdotes'
-import anecdoteReducer, { setAnecdotes } from './reducers/anecdoteReducer'
+import { setAnecdotes } from './reducers/anecdoteReducer'
 
 anecdoteService.getAll().then(anecdotes =>
   store.dispatch(setAnecdotes(anecdotes))
