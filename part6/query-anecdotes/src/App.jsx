@@ -21,10 +21,15 @@ const App = () => {
     queryKey: ['anecdotes'],
     queryFn: getAnecdotes,
     refetchOnWindowFocus: false,
+    retry: false
   });
 
   if (result.isLoading) {
     return <div>loading data...</div>;
+  }
+
+  if (result.isError) {
+    return <span>anecdote service not avaible due to problems in the server</span>
   }
 
   const anecdotes = result.data;
