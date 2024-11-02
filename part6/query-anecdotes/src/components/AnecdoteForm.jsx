@@ -1,15 +1,35 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createAnecdote } from '../requests';
+import { useNotificationDispatch } from '../contexts/NotificationContext';
 
 const AnecdoteForm = () => {
   const queryClient = useQueryClient();
+  const notificationDispatch = useNotificationDispatch();
 
   const newAnecdoteMutation = useMutation({
     mutationFn: createAnecdote,
     onSuccess: (newAnecdote) => {
       const anecdotes = queryClient.getQueryData(['anecdotes']) || [];
       queryClient.setQueryData(['anecdotes'], anecdotes.concat(newAnecdote));
+
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: `You created "${newAnecdote.content}"`,
+      });
+
+      setTimeout(() => {
+        notificationDispatch({ type: "CLEAR_NOTIFICATION" });
+      }, 5000);
     },
+    onError:()=>{ notificationDispatch({
+      type: "SET_NOTIFICATION",
+      payload: `too short anecdote, must have length 5 or more"`,
+    });
+
+    setTimeout(() => {
+      notificationDispatch({ type: "CLEAR_NOTIFICATION" });
+    }, 5000);
+  }
   });
 
   const addAnecdote = (event) => {
@@ -35,6 +55,6 @@ const AnecdoteForm = () => {
       </form>
     </div>
   );
-}
+};
 
 export default AnecdoteForm;
