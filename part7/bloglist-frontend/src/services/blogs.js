@@ -7,6 +7,11 @@ const setToken = (newToken) => {
   token = `Bearer ${newToken}`
 }
 
+const getById = async (id) => {
+  const response = await axios.get(`${baseUrl}/${id}`);
+  return response.data;
+};
+
 const getAll = () => {
   const request = axios.get(baseUrl)
   return request.then((response) => response.data)
@@ -22,9 +27,10 @@ const create = async (newObject) => {
 }
 
 const update = async (id, updatedBlog) => {
-  const response = await axios.put(`${baseUrl}/${id}`, updatedBlog)
-  return response.data
-}
+  const response = await axios.put(`${baseUrl}/${id}`, updatedBlog);
+  return response.data;
+};
+
 
 const remove = async (id) => {
   const config = {
@@ -35,4 +41,4 @@ const remove = async (id) => {
   return response.data
 }
 
-export default { getAll, setToken, create, update, remove }
+export default { getAll, getById, setToken, create, update, remove }

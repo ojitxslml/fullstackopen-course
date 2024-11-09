@@ -1,53 +1,67 @@
-import { useState } from 'react'
-import blogService from '../services/blogs'
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { likeBlog, deleteBlog } from "../contexts/blogsSlice";
+import {
+  setNotification,
+  clearNotification,
+} from "../contexts/notificationSlice";
 
-const Blog = ({ blog, user, updateBlogList }) => {
-  const [visible, setVisible] = useState(false)
+const Blog = ({ blog, user }) => {
+  const [visible, setVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const toggleVisibility = () => {
-    setVisible(!visible)
-  }
+    setVisible(!visible);
+  };
 
   const blogStyle = {
     padding: 4,
-    border: 'solid',
+    border: "solid",
     borderWidth: 1,
     marginBottom: 4,
-  }
+  };
 
   const handleLike = async () => {
-    const updatedBlog = {
-      ...blog,
-      likes: blog.likes + 1,
-    }
-
     try {
-      const returnedBlog = await blogService.update(blog.id, updatedBlog)
-      updateBlogList(returnedBlog)
+      dispatch(likeBlog(blog.id));
+      dispatch(setNotification({ message: "Blog liked!", type: "successful" }));
+      setTimeout(() => dispatch(clearNotification()), 1000);
     } catch (error) {
-      console.error('Error updating likes', error)
+      dispatch(
+        setNotification({ message: "Error liking blog", type: "error" })
+      );
+      setTimeout(() => dispatch(clearNotification()), 5000);
     }
-  }
+  };
 
   const handleDelete = async () => {
     const confirmDeletion = window.confirm(
       `Remove blog "${blog.title}" by ${blog.author}?`
-    )
+    );
     if (confirmDeletion) {
       try {
-        await blogService.remove(blog.id)
-        updateBlogList(blog.id)
+        dispatch(deleteBlog(blog.id));
+        dispatch(
+          setNotification({ message: "Blog deleted!", type: "successful" })
+        );
+        setTimeout(() => dispatch(clearNotification()), 1000);
       } catch (error) {
-        console.error('Error deleting blog:', error)
+        dispatch(
+          setNotification({ message: "Error deleting blog", type: "error" })
+        );
+        setTimeout(() => dispatch(clearNotification()), 5000);
       }
     }
-  }
+  };
+
+  const isCurrentUser = user?.username === blog?.user?.username;
 
   return (
     <div className="blog" style={blogStyle}>
       <div>
-        <span className='blog-title'>{blog.title}</span><span>{blog.author}</span>
-        <button onClick={toggleVisibility}>{visible ? 'hide' : 'view'}</button>
+        <span className="blog-title">{blog.title}</span>
+        <span>{blog.author}</span>
+        <button onClick={toggleVisibility}>{visible ? "hide" : "view"}</button>
       </div>
       {visible && (
         <div>
@@ -56,10 +70,10 @@ const Blog = ({ blog, user, updateBlogList }) => {
             likes {blog.likes} <button onClick={handleLike}>like</button>
           </p>
           <p>{blog.author}</p>
-          {user && user.username === blog.user.username && (
+          {isCurrentUser && (
             <button
               onClick={handleDelete}
-              style={{ marginLeft: '10px', color: 'red' }}
+              style={{ marginLeft: "10px", color: "red" }}
             >
               delete
             </button>
@@ -67,7 +81,7 @@ const Blog = ({ blog, user, updateBlogList }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Blog
+export default Blog;
