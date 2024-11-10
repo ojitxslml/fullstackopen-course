@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = '/api/blogs'
+const baseUrl = '/api/users'
 
 let token = null
 
@@ -8,14 +8,19 @@ const setToken = (newToken) => {
 }
 
 const getById = async (id) => {
-  const response = await axios.get(`${baseUrl}/${id}`);
-  return response.data;
-};
+    try {
+      const response = await axios.get(`${baseUrl}/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user by ID:', error);
+      throw error;
+    }
+  };
 
-const getAll = async() => {
-  const request = await axios.get(baseUrl)
-  return request.data;
-}
+const getAll = async () => {
+    const request = await axios.get(baseUrl);
+    return request.data;
+  };
 
 const create = async (newObject) => {
   const config = {

@@ -27,7 +27,7 @@ app.use(express.static('dist'))
 app.use(express.json())
 app.use(middleware.requestLogger)
 app.use('/api/blogs', blogsRouter)
-app.use('/api/users', usersRouter)
+app.use('/api/users', usersRouter);
 app.use('/api/login', loginRouter)
 
 if (process.env.NODE_ENV === 'test') {
