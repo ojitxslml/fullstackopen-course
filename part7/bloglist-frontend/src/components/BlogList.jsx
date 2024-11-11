@@ -7,14 +7,15 @@ import Togglable from "./Togglable";
 import BlogForm from "./BlogForm";
 import { addBlog } from "../contexts/blogsSlice";
 import {
-    setNotification,
-    clearNotification,
-  } from "../contexts/notificationSlice";
+  setNotification,
+  clearNotification,
+} from "../contexts/notificationSlice";
+import { Link } from "react-router-dom";
 
-const BlogList = ({ user }) => {
+const BlogList = () => {
   const BlogFormRef = useRef();
   const dispatch = useDispatch();
-  const blogs = useSelector((state) => state.blogs);
+  const blogs = useSelector((state) => state.blogs.allBlogs);
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
   useEffect(() => {
     dispatch(fetchBlogs());
@@ -43,7 +44,9 @@ const BlogList = ({ user }) => {
         <BlogForm createBlog={handleAddBlog} />
       </Togglable>
       {sortedBlogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} user={user} />
+        <p key={blog.id}>
+          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+        </p>
       ))}
     </div>
   );

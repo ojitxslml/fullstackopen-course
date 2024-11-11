@@ -1,18 +1,33 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { likeBlog, deleteBlog } from "../contexts/blogsSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import { likeBlog, deleteBlog, fetchBlogById, addComment   } from "../contexts/blogsSlice";
 import {
   setNotification,
   clearNotification,
 } from "../contexts/notificationSlice";
+import BlogCommentForm from "./BlogCommentForm";
 
-const Blog = ({ blog, user }) => {
-  const [visible, setVisible] = useState(false);
+const Blog = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const blog = useSelector((state) => state.blogs.blogById);
+  const user = useSelector((state) => state.user);
 
-  const toggleVisibility = () => {
-    setVisible(!visible);
-  };
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadBlog = () => {
+      setLoading(true);
+      dispatch(fetchBlogById(id));
+      setLoading(false);
+    };
+
+    if (id) {
+      loadBlog();
+    }
+  }, [id, dispatch]);
 
   const blogStyle = {
     padding: 4,
@@ -23,13 +38,16 @@ const Blog = ({ blog, user }) => {
 
   const handleLike = async () => {
     try {
-      dispatch(likeBlog(blog.id));
+      // Esperar a que la acción de "like" se complete
+      await dispatch(likeBlog(blog.id));
+  
+      // Vuelve a cargar el blog actualizado
+      await dispatch(fetchBlogById(id));
+  
       dispatch(setNotification({ message: "Blog liked!", type: "successful" }));
       setTimeout(() => dispatch(clearNotification()), 1000);
     } catch (error) {
-      dispatch(
-        setNotification({ message: "Error liking blog", type: "error" })
-      );
+      dispatch(setNotification({ message: "Error liking blog", type: "error" }));
       setTimeout(() => dispatch(clearNotification()), 5000);
     }
   };
@@ -45,6 +63,7 @@ const Blog = ({ blog, user }) => {
           setNotification({ message: "Blog deleted!", type: "successful" })
         );
         setTimeout(() => dispatch(clearNotification()), 1000);
+        navigate("/");
       } catch (error) {
         dispatch(
           setNotification({ message: "Error deleting blog", type: "error" })
@@ -56,30 +75,50 @@ const Blog = ({ blog, user }) => {
 
   const isCurrentUser = user?.username === blog?.user?.username;
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!blog) {
+    return <div>Blog not found</div>;
+  }
+
+  const createComment = ({ comment }) => {
+    try {
+      dispatch(addComment({ blogId: blog.id, content: comment }));
+      dispatch(setNotification({ message: "Added Comment!", type: "successful" }));
+      setTimeout(() => dispatch(clearNotification()), 1000);
+    } catch (error) {
+      dispatch(setNotification({ message: `Error adding new comment ${error}`, type: "error" }));
+      setTimeout(() => dispatch(clearNotification()), 5000);
+    }
+  };
   return (
     <div className="blog" style={blogStyle}>
       <div>
         <span className="blog-title">{blog.title}</span>
         <span>{blog.author}</span>
-        <button onClick={toggleVisibility}>{visible ? "hide" : "view"}</button>
       </div>
-      {visible && (
-        <div>
-          <p>{blog.url}</p>
-          <p>
-            likes {blog.likes} <button onClick={handleLike}>like</button>
-          </p>
-          <p>{blog.author}</p>
-          {isCurrentUser && (
-            <button
-              onClick={handleDelete}
-              style={{ marginLeft: "10px", color: "red" }}
-            >
-              delete
-            </button>
-          )}
-        </div>
-      )}
+      <div>
+        <p>{blog.url}</p>
+        <p>
+          likes {blog.likes} <button onClick={handleLike}>like</button>
+        </p>
+        <p>{blog.author}</p>
+        {isCurrentUser && (
+          <button
+            onClick={handleDelete}
+            style={{ marginLeft: "10px", color: "red" }}
+          >
+            delete
+          </button>
+        )}
+      </div>
+      <h2>Comments</h2>
+      <BlogCommentForm createComment={createComment}/>
+      {blog.comments.map((comment, index) => {
+        return <li key={index}>{comment.content}</li>;
+      })}
     </div>
   );
 };

@@ -1,16 +1,19 @@
-const blogsRouter = require('express').Router();
-const Blog = require('../models/blog');
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
-const middleware = require('../utils/middleware');
+const blogsRouter = require("express").Router();
+const Blog = require("../models/blog");
+const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+const middleware = require("../utils/middleware");
 
-blogsRouter.get('/', async (request, response) => {
-   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
+blogsRouter.get("/", async (request, response) => {
+  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   response.json(blogs);
 });
 
-blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1 });
+blogsRouter.get("/:id", async (request, response) => {
+  const blog = await Blog.findById(request.params.id).populate("user", {
+    username: 1,
+    name: 1,
+  });
   if (blog) {
     response.json(blog);
   } else {
@@ -18,14 +21,12 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 });
 
-
-
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post("/", async (request, response, next) => {
   const { title, author, url, likes } = request.body;
 
   // Validar antes de llamar a userExtractor
   if (!title || !url) {
-    return response.status(400).json({ error: 'title or url missing' });
+    return response.status(400).json({ error: "title or url missing" });
   }
 
   // Si la validación pasa, proceder a extraer el usuario
@@ -35,7 +36,7 @@ blogsRouter.post('/', async (request, response, next) => {
       author,
       url,
       likes: likes !== undefined ? likes : 0,
-      user: request.user.id // Usar el usuario del objeto request
+      user: request.user.id, // Usar el usuario del objeto request
     });
 
     try {
@@ -49,25 +50,59 @@ blogsRouter.post('/', async (request, response, next) => {
   });
 });
 
+blogsRouter.post("/:id/comments", async (request, response) => {
+  const { id } = request.params;
+  const { content } = request.body;
 
-
-blogsRouter.delete('/:id',middleware.userExtractor, async (request, response) => {
-  const blog = await Blog.findById(request.params.id);
-
-  if (!blog) {
-    return response.status(404).json({ error: 'blog not found' });
+  if (!content || content.trim().length === 0) {
+    return response.status(400).json({ error: "Content for the comment is missing" });
   }
 
-  if (request.user.id.toString() === blog.user.toString()) {
-    await Blog.findByIdAndDelete(request.params.id);
-    return response.status(204).end();
-  } else {
-    return response.status(403).json({ error: 'permission denied' });
+  try {
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return response.status(404).json({ error: "Blog not found" });
+    }
+
+    const newComment = {
+      content,
+      date: new Date(),
+    };
+
+    blog.comments = blog.comments.concat(newComment);
+
+    const updatedBlog = await blog.save();
+
+    response.status(201).json(updatedBlog);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: "Internal server error" });
   }
 });
 
 
-blogsRouter.put('/:id', async (request, response) => {
+
+blogsRouter.delete(
+  "/:id",
+  middleware.userExtractor,
+  async (request, response) => {
+    const blog = await Blog.findById(request.params.id);
+
+    if (!blog) {
+      return response.status(404).json({ error: "blog not found" });
+    }
+
+    if (request.user.id.toString() === blog.user.toString()) {
+      await Blog.findByIdAndDelete(request.params.id);
+      return response.status(204).end();
+    } else {
+      return response.status(403).json({ error: "permission denied" });
+    }
+  }
+);
+
+blogsRouter.put("/:id", async (request, response) => {
   const { title, author, url, likes } = request.body;
 
   const blog = {
@@ -77,11 +112,11 @@ blogsRouter.put('/:id', async (request, response) => {
     likes
   };
 
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    request.params.id,
-    blog,
-    { new: true, runValidators: true, context: 'query' }
-  );
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  });
 
   if (updatedBlog) {
     response.json(updatedBlog);

@@ -16,6 +16,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import BlogList from "./components/BlogList";
 import Users from "./components/Users";
 import UserBlogs from "./components/UserBlogs";
+import Blog from "./components/Blog";
 
 const Menu = () => {
   const padding = {
@@ -115,6 +116,7 @@ const App = () => {
             <Route path="/" element={<BlogList user={user} />} />
             <Route path="/users/:id" element={<UserBlogs />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/blogs/:id" element={<Blog />} />
           </Routes>
         </div>
       )}
