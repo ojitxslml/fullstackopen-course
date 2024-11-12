@@ -39,13 +39,18 @@ const BlogList = () => {
     }
   };
   return (
-    <div>
+    <div className="lg:mx-40 mx-5 my-10">
       <Togglable buttonLabel="new blog" ref={BlogFormRef}>
         <BlogForm createBlog={handleAddBlog} />
       </Togglable>
       {sortedBlogs.map((blog) => (
         <p key={blog.id}>
-          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+          <Link
+            to={`/blogs/${blog.id}`}
+            className="block bg-blue-300 bg-opacity-5 text-white px-4 py-2 my-4 rounded-lg transition duration-300 hover:bg-opacity-5 hover:text-sky-300"
+          >
+            {blog.title}
+          </Link>
         </p>
       ))}
     </div>

@@ -32,32 +32,39 @@ const BlogForm = ({ createBlog, user }) => {
     setNewUrl("");
   };
 
+  const inputClass = "border border-gray-300 rounded px-3 py-2 text-gray-600";
+  const labelClass = "m-1 text-lg font-medium";
+
   return (
-    <form onSubmit={handleSubmit}>
-      <p>
-        Title:{" "}
-        <input
-          value={newTitle}
-          onChange={handleTitleChange}
-          placeholder="Title"
-        />
-      </p>
-
-      <p>
-        Author:{" "}
-        <input
-          value={newAuthor}
-          onChange={handleAuthorChange}
-          placeholder="Author"
-        />
-      </p>
-
-      <p>
-        URL:{" "}
-        <input value={newUrl} onChange={handleUrlChange} placeholder="Url" />
-      </p>
-
-      <button type="submit">save</button>
+    <form onSubmit={handleSubmit} className="">
+      <p className={labelClass}>Title: </p>
+      <input
+        value={newTitle}
+        onChange={handleTitleChange}
+        placeholder="Title"
+        className={inputClass}
+      />
+      <p className={labelClass}>Author: </p>
+      <input
+        value={newAuthor}
+        onChange={handleAuthorChange}
+        placeholder="Author"
+        className={inputClass}
+      />
+      <p className={labelClass}>URL: </p>
+      <input
+        value={newUrl}
+        onChange={handleUrlChange}
+        placeholder="Url"
+        className={inputClass}
+      />
+      <br />
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-6 py-2 mt-4  w-[80px] rounded hover:bg-blue-600"
+      >
+        save
+      </button>
     </form>
   );
 };

@@ -1,10 +1,10 @@
-import { useParams } from 'react-router-dom';
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserById } from '../contexts/usersListSlice';
+import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserById } from "../contexts/usersListSlice";
 
 const UserBlogs = () => {
-  const { id } = useParams();  // Acceder al parámetro 'id' de la URL
+  const { id } = useParams();
 
   const dispatch = useDispatch();
   const { userById, status, error } = useSelector((state) => state.users);
@@ -16,20 +16,25 @@ const UserBlogs = () => {
     }
   }, [dispatch, id]);
 
-  if (status === 'loading') return <p>Loading blogs...</p>;
-  if (status === 'failed') return <p>Error: {error}</p>;
+  if (status === "loading") return <p>Loading blogs...</p>;
+  if (status === "failed") return <p>Error: {error}</p>;
 
   return (
-    <div>
+    <div className="bg-slate-900 rounded-md lg:mx-80 mx-5 my-6 p-4 text-white">
       {user ? (
         <div>
-          <h2>{user.name}</h2>
+          <h2 className="text-2xl font-bold mb-4">{user.name}</h2>
           {user.blogs.length > 0 ? (
-            <ul>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {user.blogs.map((blog) => (
-                <li key={blog.id}>{blog.title}</li>
+                <div
+                  key={blog.id}
+                  className="p-4 border border-slate-700 rounded-md bg-slate-800"
+                >
+                  <p className="font-semibold">{blog.title}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p>No blogs available</p>
           )}

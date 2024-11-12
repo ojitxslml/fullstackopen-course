@@ -1,18 +1,11 @@
 const Notification = ({ message, type }) => {
-  if (message === null) {
-    return null
-  }
+  if (!message) return null;
 
   return (
-    type === 'error' ?
-      <div className="error">
-        {message}
-      </div>
-      :
-      <div className="successful">
-        {message}
-      </div>
-  )
-}
+    <div className={`notification ${type === "error" ? "bg-red-600" : "bg-green-600"}`}>
+      {message}
+    </div>
+  );
+};
 
-export default Notification
+export default Notification;

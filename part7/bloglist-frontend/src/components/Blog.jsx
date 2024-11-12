@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { likeBlog, deleteBlog, fetchBlogById, addComment   } from "../contexts/blogsSlice";
+import {
+  likeBlog,
+  deleteBlog,
+  fetchBlogById,
+  addComment,
+} from "../contexts/blogsSlice";
 import {
   setNotification,
   clearNotification,
 } from "../contexts/notificationSlice";
 import BlogCommentForm from "./BlogCommentForm";
+import formatDate from "../utils/formatDate";
 
 const Blog = () => {
   const dispatch = useDispatch();
@@ -29,25 +35,21 @@ const Blog = () => {
     }
   }, [id, dispatch]);
 
-  const blogStyle = {
-    padding: 4,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 4,
-  };
 
   const handleLike = async () => {
     try {
       // Esperar a que la acción de "like" se complete
       await dispatch(likeBlog(blog.id));
-  
+
       // Vuelve a cargar el blog actualizado
       await dispatch(fetchBlogById(id));
-  
+
       dispatch(setNotification({ message: "Blog liked!", type: "successful" }));
       setTimeout(() => dispatch(clearNotification()), 1000);
     } catch (error) {
-      dispatch(setNotification({ message: "Error liking blog", type: "error" }));
+      dispatch(
+        setNotification({ message: "Error liking blog", type: "error" })
+      );
       setTimeout(() => dispatch(clearNotification()), 5000);
     }
   };
@@ -86,38 +88,48 @@ const Blog = () => {
   const createComment = ({ comment }) => {
     try {
       dispatch(addComment({ blogId: blog.id, content: comment }));
-      dispatch(setNotification({ message: "Added Comment!", type: "successful" }));
+      dispatch(
+        setNotification({ message: "Added Comment!", type: "successful" })
+      );
       setTimeout(() => dispatch(clearNotification()), 1000);
     } catch (error) {
-      dispatch(setNotification({ message: `Error adding new comment ${error}`, type: "error" }));
+      dispatch(
+        setNotification({
+          message: `Error adding new comment ${error}`,
+          type: "error",
+        })
+      );
       setTimeout(() => dispatch(clearNotification()), 5000);
     }
   };
+
+
+
   return (
-    <div className="blog" style={blogStyle}>
-      <div>
-        <span className="blog-title">{blog.title}</span>
-        <span>{blog.author}</span>
+    <div className="blog bg-slate-900 rounded-md lg:mx-80 my-6 p-4 flex flex-col">
+      <div >
+        <span className="blog-title text-2xl font-bold">{blog.title}</span>
       </div>
       <div>
-        <p>{blog.url}</p>
+        <p>Author: {blog.author}</p>
+        <p>URL: {blog.url}</p>
         <p>
-          likes {blog.likes} <button onClick={handleLike}>like</button>
+          Likes: <span className="font-bold">{blog.likes}</span>  <button onClick={handleLike} className="bg-blue-500 text-white rounded-md hover:bg-blue-600  px-2 w-[50px] mx-2">Like</button>
         </p>
-        <p>{blog.author}</p>
         {isCurrentUser && (
           <button
             onClick={handleDelete}
-            style={{ marginLeft: "10px", color: "red" }}
+            className="bg-red-500 text-white px-2 py-1 mt-4 w-[80px] rounded hover:bg-red-600"
           >
-            delete
+            Delete
           </button>
         )}
       </div>
-      <h2>Comments</h2>
-      <BlogCommentForm createComment={createComment}/>
-      {blog.comments.map((comment, index) => {
-        return <li key={index}>{comment.content}</li>;
+      <h2 className="text-lg">Comments</h2>
+      <BlogCommentForm createComment={createComment} />
+     <p className="mt-4">Recent comments:</p>
+      {blog.comments.map((comment) => {
+        return <li key={comment._id} className="m-2 text-lg">{comment.content} <span className="opacity-30 text-xs">{formatDate(comment.date)}</span></li>;
       })}
     </div>
   );

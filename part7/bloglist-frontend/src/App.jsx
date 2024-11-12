@@ -10,7 +10,7 @@ import {
   clearNotification,
 } from "./contexts/notificationSlice";
 
-import { setUser, logout } from "./contexts/userSlice"; // Importar las acciones de Redux
+import { setUser, logout } from "./contexts/userSlice";
 
 import { Routes, Route, Link } from "react-router-dom";
 import BlogList from "./components/BlogList";
@@ -18,18 +18,65 @@ import Users from "./components/Users";
 import UserBlogs from "./components/UserBlogs";
 import Blog from "./components/Blog";
 
-const Menu = () => {
-  const padding = {
-    paddingRight: 5,
-  };
+const Menu = ({ user, handleLogout }) => {
+  const [menuVisible, setMenuVisible] = useState(false);
+
   return (
-    <div>
-      <Link to="/" style={padding}>
-        blogs
-      </Link>
-      <Link to="/users" style={padding}>
-        users
-      </Link>
+    <div className="bg-gray-800 text-white p-4 flex justify-between items-center">
+      <div className="flex items-center space-x-6">
+        <Link to="/" className="text-xl">
+          Blog App
+        </Link>
+      </div>
+      <div className="hidden md:flex space-x-6">
+        <Link to="/" className="hover:bg-gray-700 px-3 py-2 rounded">
+          Blogs
+        </Link>
+        <Link to="/users" className="hover:bg-gray-700 px-3 py-2 rounded">
+          Users
+        </Link>
+      </div>
+      <div className="flex items-center">
+        {user ? (
+          <div className="flex items-center space-x-4">
+            <span>{user.name}</span>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 px-3 py-2 rounded hover:bg-red-700"
+            >
+              logout
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setMenuVisible(true)}
+            className="bg-blue-600 px-3 py-2 rounded hover:bg-blue-700"
+          >
+            log in
+          </button>
+        )}
+      </div>
+      <button
+        className="md:hidden text-white"
+        onClick={() => setMenuVisible(!menuVisible)}
+      >
+        <span className="material-icons">menu</span>
+      </button>
+      {menuVisible && (
+        <div className="absolute top-16 left-0 w-full bg-gray-800 text-white p-4 md:hidden">
+          <div className="space-y-4">
+            <Link to="/" className="block hover:bg-gray-700 px-3 py-2 rounded">
+              Blogs
+            </Link>
+            <Link
+              to="/users"
+              className="block hover:bg-gray-700 px-3 py-2 rounded"
+            >
+              Users
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -42,13 +89,13 @@ const App = () => {
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.notification);
 
-  const user = useSelector((state) => state.user); // Obtener el usuario del Redux store
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      dispatch(setUser(user)); // Almacenar el usuario en el Redux store
+      dispatch(setUser(user));
       blogService.setToken(user.token);
     }
   }, [dispatch]);
@@ -59,7 +106,7 @@ const App = () => {
       const user = await loginService.login({ username, password });
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       blogService.setToken(user.token);
-      dispatch(setUser(user)); // Almacenar el usuario en el Redux store
+      dispatch(setUser(user));
       setUsername("");
       setPassword("");
     } catch (exception) {
@@ -79,8 +126,14 @@ const App = () => {
 
     return (
       <div>
-        <div style={hideWhenVisible}>
-          <button onClick={() => setLoginVisible(true)}>log in</button>
+        <div style={hideWhenVisible} className="flex flex-col justify-center items-center ">
+          <h2 className="mt-20 text-xl capitalize">Please Log in to view or create blogs</h2>
+          <button
+            onClick={() => setLoginVisible(true)}
+            className="bg-blue-600 mt-4 px-3 py-2 rounded hover:bg-blue-700 w-[200px]"
+          >
+            log in
+          </button>
         </div>
         <div style={showWhenVisible}>
           <LoginForm
@@ -89,8 +142,8 @@ const App = () => {
             handleUsernameChange={({ target }) => setUsername(target.value)}
             handlePasswordChange={({ target }) => setPassword(target.value)}
             handleSubmit={handleLogin}
+            handleCancel={() => setLoginVisible(false)} // Pasamos handleCancel aquí
           />
-          <button onClick={() => setLoginVisible(false)}>cancel</button>
         </div>
       </div>
     );
@@ -103,15 +156,13 @@ const App = () => {
   };
 
   return (
-    <div>
-      <h2>blogs</h2>
-      <Notification message={notification.message} type={notification.type} />
+    <div className="min-h-screen bg-slate-700 text-white overflow-hidden">
+      
 
       {!user && loginForm()}
       {user && (
         <div>
-          <Menu />
-          {user.name} logged in <button onClick={handleLogout}>logout</button>
+          <Menu user={user} handleLogout={handleLogout} />
           <Routes>
             <Route path="/" element={<BlogList user={user} />} />
             <Route path="/users/:id" element={<UserBlogs />} />
@@ -120,6 +171,7 @@ const App = () => {
           </Routes>
         </div>
       )}
+      <Notification message={notification.message} type={notification.type} />
     </div>
   );
 };
