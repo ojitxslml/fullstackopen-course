@@ -20,7 +20,9 @@ const NewBook = ({ setError }) => {
   const submit = async (event) => {
     event.preventDefault();
 
-    createBook({ variables: { title, published: parseInt(published, 10), author, genres } });
+    createBook({
+      variables: { title, published: parseInt(published, 10), author, genres },
+    });
 
     setTitle("");
     setPublished("");

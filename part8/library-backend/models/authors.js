@@ -10,6 +10,10 @@ const schema = new mongoose.Schema({
   born: {
     type: Number,
   },
+  bookCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // Esperar a que los índices se creen antes de realizar operaciones de escritura.

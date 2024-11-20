@@ -24,89 +24,11 @@ mongoose
     console.log("error connection to MongoDB:", error.message);
   });
 
-let authors = [
-  {
-    name: "Robert Martin",
-    id: "afa51ab0-344d-11e9-a414-719c6709cf3e",
-    born: 1952,
-  },
-  {
-    name: "Martin Fowler",
-    id: "afa5b6f0-344d-11e9-a414-719c6709cf3e",
-    born: 1963,
-  },
-  {
-    name: "Fyodor Dostoevsky",
-    id: "afa5b6f1-344d-11e9-a414-719c6709cf3e",
-    born: 1821,
-  },
-  {
-    name: "Joshua Kerievsky", // birthyear not known
-    id: "afa5b6f2-344d-11e9-a414-719c6709cf3e",
-  },
-  {
-    name: "Sandi Metz", // birthyear not known
-    id: "afa5b6f3-344d-11e9-a414-719c6709cf3e",
-  },
-];
-
-let books = [
-  {
-    title: "Clean Code",
-    published: 2008,
-    author: "Robert Martin",
-    id: "afa5b6f4-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring"],
-  },
-  {
-    title: "Agile software development",
-    published: 2002,
-    author: "Robert Martin",
-    id: "afa5b6f5-344d-11e9-a414-719c6709cf3e",
-    genres: ["agile", "patterns", "design"],
-  },
-  {
-    title: "Refactoring, edition 2",
-    published: 2018,
-    author: "Martin Fowler",
-    id: "afa5de00-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring"],
-  },
-  {
-    title: "Refactoring to patterns",
-    published: 2008,
-    author: "Joshua Kerievsky",
-    id: "afa5de01-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring", "patterns"],
-  },
-  {
-    title: "Practical Object-Oriented Design, An Agile Primer Using Ruby",
-    published: 2012,
-    author: "Sandi Metz",
-    id: "afa5de02-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring", "design"],
-  },
-  {
-    title: "Crime and punishment",
-    published: 1866,
-    author: "Fyodor Dostoevsky",
-    id: "afa5de03-344d-11e9-a414-719c6709cf3e",
-    genres: ["classic", "crime"],
-  },
-  {
-    title: "Demons",
-    published: 1872,
-    author: "Fyodor Dostoevsky",
-    id: "afa5de04-344d-11e9-a414-719c6709cf3e",
-    genres: ["classic", "revolution"],
-  },
-];
-
 const typeDefs = `
 
 type User {
   username: String!
-  favoriteGenre: String!
+  favoriteGenre: String
   id: ID!
 }
 
@@ -176,17 +98,49 @@ const resolvers = {
         return 0;
       }
     },
+    // Comprobación en el backend
+    allBooks: async (root, args) => {
+      const { author, genre } = args;
+      console.log(author, genre); // Para ver qué datos se están pasando como filtro
+
+      try {
+        let filter = {};
+
+        if (author) {
+          filter.author = author;
+        }
+
+        if (genre) {
+          filter.genres = { $in: [genre] };
+        }
+
+        const books = await Book.find(filter).populate("author");
+        console.log(books); // Asegúrate de que se devuelvan libros
+        return books;
+      } catch (error) {
+        console.error("Error al obtener los libros:", error);
+        return [];
+      }
+    },
     allAuthors: async () => {
       try {
-        // Obtener todos los autores
+        // Obtener todos los autores con el número de libros que tienen
         const authors = await Author.find({});
 
-        // Retornar solo los autores sin contar los libros
-        return authors.map((author) => ({
-          name: author.name,
-          born: author.born,
-          id: author.id,
-        }));
+        // Para cada autor, contar el número de libros asociados
+        const authorsWithBookCount = await Promise.all(
+          authors.map(async (author) => {
+            const booksCount = await Book.countDocuments({
+              author: author._id,
+            });
+            return {
+              ...author.toObject(),
+              bookCount: booksCount,
+            };
+          })
+        );
+
+        return authorsWithBookCount;
       } catch (error) {
         console.error("Error al obtener los autores:", error);
         return [];
@@ -243,10 +197,13 @@ const resolvers = {
       // Verificar si el autor existe
       let author = await Author.findOne({ name: args.author });
 
-      // Si el autor no existe, crearlo
       if (!author) {
         try {
-          author = new Author({ name: args.author });
+          // Crear un nuevo autor si no existe, inicializando bookCount a 0
+          author = new Author({
+            name: args.author,
+            bookCount: 0,
+          });
           await author.save();
         } catch (error) {
           throw new GraphQLError("Author creation failed", {
@@ -258,16 +215,26 @@ const resolvers = {
         }
       }
 
-      // Crear el libro y asignar el _id del autor
+      // Crear el libro
       const book = new Book({
-        ...args,
-        author: author._id, // Asignar el _id del autor al libro
-        id: uuid(),
+        title: args.title,
+        author: author._id, // Asociamos el autor al libro
+        published: args.published,
+        genres: args.genres,
       });
 
       try {
+        // Guardar el libro
         await book.save();
-        return book;
+
+        // Actualizar el contador de libros del autor
+        author.bookCount += 1;
+        await author.save();
+
+        // Poblar el autor después de guardar el libro
+        const savedBook = await Book.findById(book._id).populate("author");
+
+        return savedBook;
       } catch (error) {
         throw new GraphQLError("Saving book failed", {
           extensions: {
@@ -303,6 +270,8 @@ const resolvers = {
       author.born = args.setBornTo;
 
       try {
+        const bookCount = await Book.countDocuments({ author: author.id });
+        author.bookCount = bookCount;
         await author.save();
         return author;
       } catch (error) {
