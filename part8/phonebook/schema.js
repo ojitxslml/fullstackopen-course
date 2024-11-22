@@ -14,13 +14,13 @@ const typeDefs = `
     city: String!
   }
 
-  type Person {
-    name: String!
-    phone: String
-    address: Address!
-    id: ID!
-  }
-
+type Person {
+  name: String!
+  phone: String
+  address: Address!
+  friendOf: [User!]!
+  id: ID!
+}
   enum YesNo {
     YES
     NO
@@ -49,5 +49,5 @@ const typeDefs = `
   type Subscription {
     personAdded: Person!
   }
-`
-module.exports = typeDefs
+`;
+module.exports = typeDefs;

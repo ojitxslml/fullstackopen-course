@@ -4,6 +4,7 @@ const schema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
     minlength: 5
   },
   phone: {
@@ -14,12 +15,19 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 5
-  },
+  },  
   city: {
     type: String,
     required: true,
-    minlength: 3
+    minlength: 5
   },
+
+  friendOf: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ], 
 })
 
 module.exports = mongoose.model('Person', schema)
