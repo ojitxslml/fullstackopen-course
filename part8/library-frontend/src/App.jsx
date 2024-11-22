@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Link } from "react-router-dom";
 import AppRoutes from "./routes";
 import { useState } from "react";
 import { useApolloClient } from "@apollo/client";
@@ -22,6 +22,8 @@ const App = () => {
   };
 
   const Notify = ({ errorMessage }) => {
+    console.log("Notification Message:", errorMessage); // Verifica que el mensaje se pase correctamente
+  
     if (!errorMessage) {
       return null;
     }

@@ -78,4 +78,25 @@ const LOGIN = gql`
   }
 `;
 
-export { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK, EDIT_AUTHOR, LOGIN, ME };
+// Suscripción para recibir los libros agregados en tiempo real
+const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      title
+      author {
+        name
+      }
+      published
+      genres
+    }
+  }
+`;
+export {
+  ALL_AUTHORS,
+  ALL_BOOKS,
+  CREATE_BOOK,
+  EDIT_AUTHOR,
+  LOGIN,
+  ME,
+  BOOK_ADDED,
+};
