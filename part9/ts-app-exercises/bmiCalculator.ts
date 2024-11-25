@@ -1,9 +1,10 @@
-interface userValues {
+// bmiCalculator.ts
+export interface UserValues {
   height: number;
   weight: number;
 }
 
-const parseArguments = (args: string[]): userValues => {
+export const parseArguments = (args: string[]): UserValues => {
   if (args.length < 4) throw new Error("Not enough arguments");
   if (args.length > 4) throw new Error("Too many arguments");
 
@@ -17,34 +18,34 @@ const parseArguments = (args: string[]): userValues => {
   }
 };
 
-const calculator = (height: number, weight: number, printText: string) => {
-  const value: number = weight / (((height / 100) * height) / 100);
-  let result: string = "";
+export const calculator = (height: number, weight: number): string => {
+  const bmi = weight / (((height / 100) * height) / 100);
+  let result = '';
 
-  if (value < 18.5) {
+  if (bmi < 18.5) {
     result = "Underweight";
-  } else if (value > 18.4 && value < 25) {
+  } else if (bmi >= 18.5 && bmi < 25) {
     result = "Normal range";
-  } else if (value > 24.9 && value < 30) {
+  } else if (bmi >= 25 && bmi < 30) {
     result = "Overweight";
-  } else if (value > 29.9) {
+  } else if (bmi >= 30) {
     result = "Obese";
   }
 
-  console.log(printText, result);
+  return result;
 };
 
-try {
-  const { height, weight } = parseArguments(process.argv);
-  calculator(
-    height,
-    weight,
-    `According to Height: ${height} and Weight: ${weight}, the BMI is: `
-  );
-} catch (error: unknown) {
-  let errorMessage = "Something bad happened";
-  if (error instanceof Error) {
-    errorMessage += "Error: " + error.message;
+// Check if the module is the main one being executed
+if (require.main === module) {
+  try {
+    const { height, weight } = parseArguments(process.argv);
+    const bmiCategory = calculator(height, weight);
+    console.log(`According to Height: ${height} and Weight: ${weight}, the BMI is: ${bmiCategory}`);
+  } catch (error) {
+    let errorMessage = "Something bad happened";
+    if (error instanceof Error) {
+      errorMessage += ` Error: ${error.message}`;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
 }
