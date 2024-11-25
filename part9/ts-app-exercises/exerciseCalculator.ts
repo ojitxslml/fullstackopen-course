@@ -1,4 +1,4 @@
-interface HoursDaily {
+export interface HoursDaily {
   day1: number;
   day2: number;
   day3: number;
@@ -9,7 +9,7 @@ interface HoursDaily {
   target: number;
 }
 
-interface ExerciseResult {
+export interface ExerciseResult {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -19,7 +19,7 @@ interface ExerciseResult {
   average: number;
 }
 
-const parseArguments2 = (args: string[]): HoursDaily => {
+export const parseArguments = (args: string[]): HoursDaily => {
   if (args.length < 10) throw new Error("Not enough arguments");
   if (args.length > 10) throw new Error("Too many arguments");
 
@@ -45,7 +45,7 @@ const parseArguments2 = (args: string[]): HoursDaily => {
   } as HoursDaily;
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   dailyHours: number[],
   target: number
 ): ExerciseResult => {
@@ -80,20 +80,21 @@ const calculateExercises = (
     average,
   };
 };
-
-try {
-  const { day1, day2, day3, day4, day5, day6, day7, target } = parseArguments2(
-    process.argv
-  );
-  const result = calculateExercises(
-    [day1, day2, day3, day4, day5, day6, day7],
-    target
-  );
-  console.log(result);
-} catch (error: unknown) {
-  let errorMessage = "Something bad happened.";
-  if (error instanceof Error) {
-    errorMessage += " Error: " + error.message;
-  }
-  console.log(errorMessage);
+if (require.main === module) {
+  try {
+    const { day1, day2, day3, day4, day5, day6, day7, target } = parseArguments(
+      process.argv
+    );
+    const result = calculateExercises(
+      [day1, day2, day3, day4, day5, day6, day7],
+      target
+    );
+    console.log(result);
+  } catch (error: unknown) {
+    let errorMessage = "Something bad happened.";
+    if (error instanceof Error) {
+      errorMessage += " Error: " + error.message;
+    }
+    console.log(errorMessage);
+  } // Check if the module is the main one being executed
 }
