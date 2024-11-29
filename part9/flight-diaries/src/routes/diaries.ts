@@ -1,36 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import express from "express";
-import { Response } from "express";
-
 import diaryService from "../services/diaryService";
-import {
+import { toNewDiaryEntry } from "../utils";
 
-  DiaryEntry,
-
-} from '../types';
-import toNewDiaryEntry from '../utils';
 const router = express.Router();
 
-router.get("/", (_req, res: Response<DiaryEntry[]>) => {
+router.get("/", (_req, res) => {
   res.send(diaryService.getNonSensitiveEntries());
 });
 
-router.post('/', (req, res) => {
-  try {
-    const newDiaryEntry = toNewDiaryEntry(req.body);
-
-    const addedEntry = diaryService.addDiary(newDiaryEntry);
-    res.json(addedEntry);
-  } catch (error: unknown) {
-    let errorMessage = 'Something went wrong.';
-    if (error instanceof Error) {
-      errorMessage += ' Error: ' + error.message;
-    }
-    res.status(400).send(errorMessage);
-  }
-})
-
-router.get('/:id', (req, res) => {
+router.get("/:id", (req, res) => {
   const diary = diaryService.findById(Number(req.params.id));
 
   if (diary) {
@@ -38,6 +16,25 @@ router.get('/:id', (req, res) => {
   } else {
     res.sendStatus(404);
   }
+});
+
+router.post("/", (req, res) => {
+  try {
+    const newDiaryEntry = toNewDiaryEntry(req.body);
+
+    const addedEntry = diaryService.addDiary(newDiaryEntry);
+    res.json(addedEntry);
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong :(";
+    if (error instanceof Error) {
+      errorMessage = "Error: " + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
+});
+
+router.post("/", (_req, res) => {
+  res.send("Saving a diary!");
 });
 
 export default router;
