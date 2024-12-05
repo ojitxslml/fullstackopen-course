@@ -1,5 +1,4 @@
-import express, { NextFunction, Request } from "express";
-import { Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import patientsService from "../services/patientsService";
 import { NewPatient, Patients } from "../types";
@@ -31,6 +30,11 @@ const errorMiddleware = (
 
 router.get("/", (_req, res: Response<Patients[]>) => {
   res.send(patientsService.getNonSensitiveDetails());
+});
+
+router.get("/:id", (req: Request, res: Response<Patients>) => {
+  const patient = patientsService.getPatientById(req.params.id);
+  res.send(patient);
 });
 
 router.post(
