@@ -4,30 +4,42 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
-import { Patient, Gender } from "../../types";
+import { Patient, Gender, Entry, Diagnosis } from "../../types";
+import { MedicalInformation, MedicalServices, Work } from "@mui/icons-material";
 
 const PatientProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [diagnoses, setDiagnoses] = useState<Record<string, Diagnosis>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPatient = async () => {
+    const fetchPatientData = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3001/api/patients/${id}`
+        const [patientResponse, diagnosesResponse] = await Promise.all([
+          axios.get(`http://localhost:3001/api/patients/${id}`),
+          axios.get("http://localhost:3001/api/diagnoses"),
+        ]);
+        setPatient(patientResponse.data);
+        setDiagnoses(
+          diagnosesResponse.data.reduce(
+            (acc: Record<string, Diagnosis>, diagnosis: Diagnosis) => {
+              acc[diagnosis.code] = diagnosis;
+              return acc;
+            },
+            {}
+          )
         );
-        setPatient(response.data);
         setLoading(false);
       } catch (err) {
-        setError("Error fetching patient data");
+        setError("Error fetching patient or diagnosis data");
         setLoading(false);
       }
     };
 
     if (id) {
-      fetchPatient();
+      fetchPatientData();
     }
   }, [id]);
 
@@ -63,6 +75,91 @@ const PatientProfile: React.FC = () => {
     }
   };
 
+  const assertNever = (value: never): never => {
+    throw new Error(`Unhandled entry type: ${JSON.stringify(value)}`);
+  };
+
+  const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
+    const translateDiagnosisCodes = (codes?: string[]) => {
+      if (!codes || codes.length === 0) return null;
+  
+      return (
+        <Box sx={{ my: 1 }}>
+          <Typography variant="subtitle2">Diagnoses:</Typography>
+          <ul>
+            {codes.map((code) => (
+              <li key={code}>
+                {code}: {diagnoses[code]?.name || "Unknown"}
+                {diagnoses[code]?.latin && ` (${diagnoses[code].latin})`}
+              </li>
+            ))}
+          </ul>
+        </Box>
+      );
+    };
+  
+    switch (entry.type) {
+      case "HealthCheck":
+        return (
+          <Box key={entry.id} sx={{ my: 2, p: 2, border: "1px solid #ccc" }}>
+            <Typography variant="subtitle1">
+              Health Check <Work />
+            </Typography>
+            <Typography>Description: {entry.description}</Typography>
+            <Typography>Specialist: {entry.specialist}</Typography>
+            <Typography>Health Rating: {entry.healthCheckRating}</Typography>
+            {translateDiagnosisCodes(entry.diagnosisCodes)}
+          </Box>
+        );
+  
+      case "Hospital":
+        return (
+          <Box key={entry.id} sx={{ my: 2, p: 2, border: "1px solid #ccc" }}>
+            <Typography variant="subtitle1">
+              Hospital Visit <MedicalInformation />
+            </Typography>
+            <Typography>Description: {entry.description}</Typography>
+            <Typography>Specialist: {entry.specialist}</Typography>
+            {entry.discharge && (
+              <Typography>
+                Discharge: {entry.discharge.date} - {entry.discharge.criteria}
+              </Typography>
+            )}
+            {translateDiagnosisCodes(entry.diagnosisCodes)}
+          </Box>
+        );
+  
+      case "OccupationalHealthcare":
+        return (
+          <Box key={entry.id} sx={{ my: 2, p: 2, border: "1px solid #ccc" }}>
+            <Typography variant="subtitle1">
+              Occupational Healthcare <MedicalServices />
+            </Typography>
+            <Typography>Description: {entry.description}</Typography>
+            <Typography>Specialist: {entry.specialist}</Typography>
+            <Typography>Employer: {entry.employerName}</Typography>
+            {entry.sickLeave && (
+              <Typography>
+                Sick Leave: {entry.sickLeave.startDate} -{" "}
+                {entry.sickLeave.endDate}
+              </Typography>
+            )}
+            {translateDiagnosisCodes(entry.diagnosisCodes)}
+          </Box>
+        );
+  
+      default:
+        return assertNever(entry);
+    }
+  };
+  
+
+  const renderEntries = (entries: Entry[]) => {
+    return entries.map((entry) => (
+      <EntryDetails key={entry.id} entry={entry} />
+    ));
+  };
+
   return (
     <Container>
       {patient ? (
@@ -73,6 +170,16 @@ const PatientProfile: React.FC = () => {
           </Typography>
           <Typography>SSN: {patient.ssn}</Typography>
           <Typography>Occupation: {patient.occupation}</Typography>
+          {patient.entries && patient.entries.length > 0 ? (
+            <Box>
+              <Typography variant="h5" sx={{ my: 2 }}>
+                Entries
+              </Typography>
+              {renderEntries(patient.entries)}
+            </Box>
+          ) : (
+            <Typography>No entries found.</Typography>
+          )}
         </Box>
       ) : (
         <Typography variant="h6" color="error">
