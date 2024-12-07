@@ -26,31 +26,29 @@ const addEntry = (patientId: string, entry: Entry): Entry | undefined => {
   const patient = patients.find((p) => p.id === patientId);
   if (!patient) {
     console.log("no existe");
-    return undefined; // Si el paciente no existe
+    return undefined;
   }
 
-  // Extraemos los códigos de diagnóstico usando la función parseDiagnosisCodes
   const parsedDiagnosisCodes = parseDiagnosisCodes(entry);
 
-  // Si se encontraron códigos de diagnóstico, reemplazamos la propiedad diagnosisCodes en la entrada
   if (parsedDiagnosisCodes.length > 0) {
     entry.diagnosisCodes = parsedDiagnosisCodes;
   }
 
   try {
-    EntrySchema.parse(entry); // Si la validación falla, lanza un error
+    EntrySchema.parse(entry);
   } catch (e) {
     if (e instanceof ZodError) {
       throw e;
     } else {
       throw new Error("Error inesperado: "+e);
     }
-    return undefined; // Si la entrada no es válida
+    return undefined;
   }
 
   const newEntry = {
     ...entry,
-    id: uuid(), // Generar un nuevo ID único para la entrada
+    id: uuid(),
   };
 
   patient.entries = patient.entries || [];

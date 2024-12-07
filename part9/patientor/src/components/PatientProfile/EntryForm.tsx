@@ -256,27 +256,27 @@ const EntryForm: React.FC<EntryFormProps> = ({ patientId, onEntryAdded }) => {
         </Grid>
 
         {type === "HealthCheck" && (
-          <Grid item xs={12}>
-            <FormControl fullWidth>
-              <InputLabel>Health Check Rating</InputLabel>
-              <Select
-                value={(formData as HealthCheckEntry).healthCheckRating || ""}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    healthCheckRating: Number(e.target.value) as HealthCheckRating,
-                  })
-                }
-                label="Health Check Rating"
-              >
-                <MenuItem value="0">0 - Healthy</MenuItem>
-                <MenuItem value="1">1 - Low risk</MenuItem>
-                <MenuItem value="2">2 - High risk</MenuItem>
-                <MenuItem value="3">3 - Critical risk</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        )}
+  <Grid item xs={12}>
+    <FormControl fullWidth>
+      <InputLabel>Health Check Rating</InputLabel>
+      <Select
+        value={String((formData as HealthCheckEntry).healthCheckRating) || ""}
+        onChange={(e) =>
+          setFormData({
+            ...formData,
+            healthCheckRating: Number(e.target.value) as HealthCheckRating,
+          })
+        }
+        label="Health Check Rating"
+      >
+        <MenuItem value="0">0 - Healthy</MenuItem>
+        <MenuItem value="1">1 - Low risk</MenuItem>
+        <MenuItem value="2">2 - High risk</MenuItem>
+        <MenuItem value="3">3 - Critical risk</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid>
+)}
 
         {type === "OccupationalHealthcare" && (
           <>
