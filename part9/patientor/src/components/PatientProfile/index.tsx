@@ -6,6 +6,7 @@ import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import { Patient, Gender, Entry, Diagnosis } from "../../types";
 import { MedicalInformation, MedicalServices, Work } from "@mui/icons-material";
+import EntryForm from "./EntryForm";
 
 const PatientProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +43,18 @@ const PatientProfile: React.FC = () => {
       fetchPatientData();
     }
   }, [id]);
+
+  const handleEntryAdded = (newEntry: Entry) => {
+    setPatient((prevPatient) => {
+      if (prevPatient) {
+        return {
+          ...prevPatient,
+          entries: [...(prevPatient.entries ?? []), newEntry],
+        };
+      }
+      return prevPatient;
+    });
+  };
 
   if (loading) {
     return (
@@ -82,7 +95,7 @@ const PatientProfile: React.FC = () => {
   const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
     const translateDiagnosisCodes = (codes?: string[]) => {
       if (!codes || codes.length === 0) return null;
-  
+
       return (
         <Box sx={{ my: 1 }}>
           <Typography variant="subtitle2">Diagnoses:</Typography>
@@ -97,7 +110,7 @@ const PatientProfile: React.FC = () => {
         </Box>
       );
     };
-  
+
     switch (entry.type) {
       case "HealthCheck":
         return (
@@ -111,7 +124,7 @@ const PatientProfile: React.FC = () => {
             {translateDiagnosisCodes(entry.diagnosisCodes)}
           </Box>
         );
-  
+
       case "Hospital":
         return (
           <Box key={entry.id} sx={{ my: 2, p: 2, border: "1px solid #ccc" }}>
@@ -128,7 +141,7 @@ const PatientProfile: React.FC = () => {
             {translateDiagnosisCodes(entry.diagnosisCodes)}
           </Box>
         );
-  
+
       case "OccupationalHealthcare":
         return (
           <Box key={entry.id} sx={{ my: 2, p: 2, border: "1px solid #ccc" }}>
@@ -147,12 +160,11 @@ const PatientProfile: React.FC = () => {
             {translateDiagnosisCodes(entry.diagnosisCodes)}
           </Box>
         );
-  
+
       default:
         return assertNever(entry);
     }
   };
-  
 
   const renderEntries = (entries: Entry[]) => {
     return entries.map((entry) => (
@@ -170,6 +182,11 @@ const PatientProfile: React.FC = () => {
           </Typography>
           <Typography>SSN: {patient.ssn}</Typography>
           <Typography>Occupation: {patient.occupation}</Typography>
+          <br />
+          <br />
+          <EntryForm patientId={patient.id} onEntryAdded={handleEntryAdded} />
+          <br />
+          <br />
           {patient.entries && patient.entries.length > 0 ? (
             <Box>
               <Typography variant="h5" sx={{ my: 2 }}>
